@@ -9,9 +9,9 @@ from django.template import loader
 
 def index(request):
     albums = Album.objects.filter(available=True).order_by('-created_at')[:12]
-    formatted_albums = ["<li>{}</li>".format(album.title) for album in albums]
     template = loader.get_template('store/index.html')
-    return HttpResponse(template.render(request=request))
+    context = {'albums': albums}
+    return HttpResponse(template.render(context, request=request))
 
 def listing(request):
     albums = Album.objects.filter(available=True)
