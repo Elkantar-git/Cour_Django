@@ -1,4 +1,5 @@
 from django.shortcuts import render
+
 from .models import Album, Artist, Contact, Booking
 
 
@@ -16,10 +17,9 @@ def listing(request):
     }
     return render(request, 'store/listing.html', context)
 
-
 def detail(request, album_id):
     album = Album.objects.get(pk=album_id)
-    artists = " ".join([artist.name for artist in album.artists.all()])
+    artists = [artist.name for artist in album.artists.all()]
     artists_name = " ".join(artists)
     context = {
         'album_title': album.title,
@@ -29,23 +29,15 @@ def detail(request, album_id):
     }
     return render(request, 'store/detail.html', context)
 
-
 def search(request):
     query = request.GET.get('query')
     if not query:
         albums = Album.objects.all()
     else:
+        # title contains the query is and query is not sensitive to case.
         albums = Album.objects.filter(title__icontains=query)
-
-        if not albums.exists():
-            albums = Album.objects.filter(artists__name__icontains=query)
-
-        if not albums.exists():
-            message = "Misère de misère, nous n'avons trouvé aucun résultat !"
-
-        else:
-            albums = ["<li>{}</li>".format(album.title) for album in albums]
-
+    if not albums.exists():
+        albums = Album.objects.filter(artists__name__icontains=query)
     title = "Résultats pour la requête %s"%query
     context = {
         'albums': albums,
